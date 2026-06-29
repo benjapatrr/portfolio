@@ -1,233 +1,62 @@
-  <!DOCTYPE html>
-<!--
-  DevPool 2569 — หน้าเว็บแนะนำตัว
-  ผู้ทำ: เบญจภัทร ฤกษ์การันต์ (เบ็น) 
-  หมายเหตุ: ไฟล์เดียวจบ (HTML + CSS + JS รวมในไฟล์นี้) เพื่อให้เปิดด้วยเบราว์เซอร์ได้เลย
--->
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <!-- viewport: ทำให้หน้าเว็บปรับขนาดตามจอมือถือ (responsive) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>เบญจภัทร ฤกษ์การันต์</title>
-
-  <style>
-    /* ===== ตัวแปรสี (CSS variables) ===== */
-    /* ตั้งสีไว้ที่เดียว ใช้ซ้ำทั้งหน้า ถ้าจะเปลี่ยนธีมก็แก้ค่าพวกนี้ */
-    :root {
-      --pea-purple: #6b2d8e;   /* สีม่วง องค์กร กฟภ. ใช้เป็นสีหลัก */
-      --pea-purple-soft: #f3ebf8;
-      --bg: #ffffff;
-      --surface: #ffffff;
-      --text: #1f2430;
-      --text-muted: #5b6170;
-      --border: #e6e3ec;
-      --shadow: 0 10px 30px rgba(107, 45, 142, 0.10);
-    }
-
-    /* ===== ธีมมืด ===== */
-    /* เมื่อ JS เติม class="dark" ที่ <body> ค่าตัวแปรด้านล่างจะมาทับของเดิม */
-    body.dark {
-      --bg: #15131c;
-      --surface: #1f1b2b;
-      --text: #f1eef7;
-      --text-muted: #aaa3bd;
-      --border: #322b45;
-      --pea-purple-soft: #2a2238;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-    }
-
-    /* reset เล็กน้อย: เอา margin/padding เริ่มต้นออก และให้ padding ไม่ดันขนาดกล่อง */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', 'Sukhumvit Set', 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.65;
-      /* transition: ทำให้ตอนสลับธีมสีค่อย ๆ เปลี่ยน ไม่กระตุก */
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    /* แถบม่วงบาง ๆ ด้านบนสุด เป็นลายเซ็นของหน้า */
-    .topbar { height: 6px; background: var(--pea-purple); }
-
-    .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
-
-    /* ===== ส่วนหัว (header) ===== */
-    header { padding: 56px 0 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-
-    .eyebrow {
-      display: inline-block;
-      font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
-      color: var(--pea-purple); font-weight: 700; margin-bottom: 10px;
-    }
-    h1 { font-size: 34px; line-height: 1.2; margin-bottom: 6px; }
-    .role { color: var(--text-muted); font-size: 16px; }
-
-    /* ปุ่มสลับธีม */
-    .theme-btn {
-      flex-shrink: 0;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      padding: 9px 14px; border-radius: 999px;
-      font-size: 14px; cursor: pointer;
-      transition: border-color 0.2s ease, transform 0.1s ease;
-    }
-    .theme-btn:hover { border-color: var(--pea-purple); }
-    .theme-btn:active { transform: scale(0.96); }
-
-    /* ===== การ์ดเนื้อหา ===== */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 22px 24px;
-      margin-bottom: 18px;
-      box-shadow: var(--shadow);
-    }
-    .card h2 { font-size: 18px; margin-bottom: 10px; color: var(--pea-purple); }
-    .card p {
-    color: var(--text);
-    margin-bottom: 14px;     /* เว้นระหว่างย่อหน้าให้หายใจ (เดิม 8px แน่นไป) */
-    max-width: 62ch;         /* คุมความกว้างบรรทัด ~62 ตัวอักษร อ่านสบายตา */
-    }
-    .card p:last-child { margin-bottom: 0; }   /* ย่อหน้าสุดท้ายไม่ต้องเว้นล่าง */
-    .muted { color: var(--text-muted); font-size: 15px; }
-
-    /* รายการสังกัด/งาน ทำเป็น label ม่วงอ่อน */
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .tag {
-      background: var(--pea-purple-soft); color: var(--pea-purple);
-      padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
-    }
-
-    /* ส่วนที่ซ่อน/แสดงได้ด้วยปุ่ม */
-    .more {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.35s ease;
-      color: var(--text-muted);
-    }
-    /* เมื่อ JS เติม class="open" กล่องจะกางออก */
-    .more.open { max-height: 320px; }
-    .more p { color: var(--text-muted); margin-top: 10px; }
-
-    .more-btn {
-      margin-top: 14px; border: none; background: var(--pea-purple); color: #fff;
-      padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s ease;
-    }
-    .more-btn:hover { opacity: 0.9; }
-
-    footer { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0 50px; }
-
-    /* ===== responsive: จอเล็กกว่า 600px ปรับขนาดตัวอักษร/ระยะ ===== */
-    @media (max-width: 600px) {
-      header { flex-direction: column; padding-top: 36px; }
-      h1 { font-size: 27px; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <div class="topbar"></div>
-
   <div class="wrap">
     <header>
       <div>
         <span class="eyebrow">DevPool 2569</span>
         <h1>เบญจภัทร ฤกษ์การันต์</h1>
-        <p class="role">พนักงานช่าง ระดับ 5 กองจัดการโครงการ 2 ฝ่ายบริหารโครงการ 1 </p>
+        <p class="role">พนักงานช่าง ระดับ 5 กองจัดการโครงการ 2 ฝ่ายบริหารโครงการ 1</p>
       </div>
-
-      <!-- ปุ่มสลับธีม: ตัว id="themeBtn" ให้ JS หาเจอ -->
       <button class="theme-btn" id="themeBtn">🌙 โหมดมืด</button>
     </header>
 
     <section class="card">
       <h2>งานที่ทำอยู่</h2>
-      <p> - บริหารสัญญาจ้างก่อสร้างสถานีไฟฟ้าบางคนที จังหวัดสมุทรสงคราม </p>
-      <p> - ดูแลโครงการขยายเขตไฟฟ้าให้พื้นที่ทำกินทางการเกษตรระยะที่ 3 (คขก.3) </p>
-      <p> - จัดทำ Dashboard สำหรับใช้งานภายในกอง </p>
-             <div class="tags">
+      <ul class="job-list">
+        <li>บริหารสัญญาจ้างก่อสร้างสถานีไฟฟ้าบางคนที จังหวัดสมุทรสงคราม</li>
+        <li>ดูแลโครงการขยายเขตไฟฟ้าให้พื้นที่ทำกินทางการเกษตรระยะที่ 3 (คขก.3)</li>
+        <li>จัดทำ Dashboard สำหรับใช้งานภายในกอง</li>
+      </ul>
+      <div class="tags">
         <span class="tag">คขก.3</span>
         <span class="tag">สัญญาก่อสร้างสถานีไฟฟ้า</span>
         <span class="tag">Dashboard</span>
       </div>
     </section>
 
-   <section class="card">
-  <h2>เหตุผลที่อยากเข้า DevPool</h2>
+    <section class="card">
+      <h2>เหตุผลที่อยากเข้า DevPool</h2>
+      <p>ทุกวันนี้ผมพอจะทำเครื่องมือเล็ก ๆ มาใช้ในงานได้บ้าง เช่น dashboard ติดตามงบ
+         หรือบันทึกรายรับ-รายจ่ายง่าย ๆ ส่วนใหญ่ทำบน Google Apps Script แต่บอกตามตรงคือ
+         ถาม AI มา อยากแก้ตรงไหนก็ถาม AI อีกที แล้วค่อย ๆ ปรับไป</p>
+      <p>หลายอย่างเลยยังเป็นการแก้ปัญหาเฉพาะหน้า มากกว่าจะเข้าใจจริง ๆ ว่าข้างในทำงานยังไง
+         พอเจอปัญหาที่ AI ตอบไม่ตรง หรือบางทีมันเขียนโค้ดใหม่มาให้เลย ผมก็มักไปต่อเองไม่ได้
+         จริง ๆ เห็นโครงการ DevPool มานานแล้ว แต่ยังไม่กล้าพอที่จะเข้าร่วม</p>
+      <p>ผมเลยอยากเข้า DevPool เพื่อปูพื้นฐานการเขียนโค้ดให้
+         <strong>อ่านโค้ดออก แก้เองได้ และต่อยอดสิ่งที่ทำอยู่ให้ดีขึ้น</strong>
+         แทนที่จะพึ่ง AI อย่างเดียว เป้าหมายระยะยาวคือเอาความรู้ตรงนี้มาช่วยพัฒนาตัวเอง
+         และงานบางส่วนของ กฟภ. ได้จริง</p>
 
-  <!-- ย่อหน้า 1: สถานะตอนนี้ -->
-  <p>ทุกวันนี้ผมพอจะทำเครื่องมือเล็ก ๆ มาใช้ในงานได้บ้าง เช่น dashboard ติดตามงบ
-     หรือบันทึกรายรับ-รายจ่ายง่าย ๆ ส่วนใหญ่ทำบน Google Apps Script แต่บอกตามตรงคือ
-     ถาม AI มา อยากแก้ตรงไหนก็ถาม AI อีกที แล้วค่อย ๆ ปรับไป</p>
-
-  <!-- ย่อหน้า 2: ปัญหาที่เจอ -->
-  <p>หลายอย่างเลยยังเป็นการแก้ปัญหาเฉพาะหน้า มากกว่าจะเข้าใจจริง ๆ ว่าข้างในทำงานยังไง
-     พอเจอปัญหาที่ AI ตอบไม่ตรง หรือบางทีมันเขียนโค้ดใหม่มาให้เลย ผมก็มักไปต่อเองไม่ได้
-     จริง ๆ เห็นโครงการ DevPool มานานแล้ว แต่ยังไม่กล้าพอที่จะเข้าร่วม</p>
-
-  <!-- ย่อหน้า 3: เป้าหมาย -->
-  <p>ผมเลยอยากเข้า DevPool เพื่อปูพื้นฐานการเขียนโค้ดให้
-     <strong>อ่านโค้ดออก แก้เองได้ และต่อยอดสิ่งที่ทำอยู่ให้ดีขึ้น</strong>
-     แทนที่จะพึ่ง AI อย่างเดียว เป้าหมายระยะยาวคือเอาความรู้ตรงนี้มาช่วยพัฒนาตัวเอง
-     และงานบางส่วนของ กฟภ. ได้จริง</p>
-
-  <button class="more-btn" id="moreBtn">อ่านเพิ่มเติม</button>
-  <div class="more" id="moreBox">
-    <p>ปัจจุบันกำลังศึกษาต่อปริญญาวิศวกรรมไฟฟ้าที่ ม.ศรีปทุม (หลักสูตรเทียบโอน เสาร์–อาทิตย์)</p>
-    <p>หน้าเว็บนี้ใช้ Claude AI ทำ 99.99% อีก 0.01% ก็ถาม AI เหมือนกัน แต่คนละตัว</p>
-  </div>
-</section>
+      <button class="more-btn" id="moreBtn">อ่านเพิ่มเติม</button>
+      <div class="more" id="moreBox">
+        <p>ปัจจุบันกำลังศึกษาต่อปริญญาวิศวกรรมไฟฟ้าที่ ม.ศรีปทุม (หลักสูตรเทียบโอน เสาร์–อาทิตย์)</p>
+        <p>หน้าเว็บนี้ใช้ Claude AI ทำ 99.99% อีก 0.01% ก็ถาม AI เหมือนกัน แต่คนละตัว</p>
+      </div>
+    </section>
 
     <footer>
-      Benjapat Ruekkaran 
+      Benjapat Ruekkaran
     </footer>
   </div>
 
-  <script>
-    /* ============================================================
-       JavaScript — มี 2 จุดที่โต้ตอบกับผู้ใช้ (interaction)
-       แต่ละจุดใช้หลักเดียวกัน 3 ขั้น:
-         1) หา element ในหน้าด้วย id   (DOM)
-         2) ฟังเหตุการณ์ "คลิก"        (Event)
-         3) สลับ class เพื่อเปลี่ยนหน้าตา (classList.toggle)
-       ============================================================ */
-
-    /* ---------- จุดที่ 1: ปุ่มสลับธีม สว่าง/มืด ---------- */
-
-    // 1) ไปหยิบปุ่มที่มี id="themeBtn" มาเก็บไว้ในตัวแปร
-    const themeBtn = document.getElementById('themeBtn');
-
-    // 2) บอกปุ่มว่า "ถ้าถูกคลิก ให้ทำฟังก์ชันนี้"
-    themeBtn.addEventListener('click', function () {
-
-      // 3) เติม/เอาออก class ชื่อ "dark" ที่ <body>
-      //    toggle = ถ้ายังไม่มีให้ใส่ ถ้ามีอยู่แล้วให้เอาออก
-      //    เมื่อ body มี class dark ค่าสีใน CSS (body.dark) จะถูกใช้แทน
-      const isDark = document.body.classList.toggle('dark');
-
-      // เปลี่ยนข้อความบนปุ่มให้ตรงกับสถานะปัจจุบัน
-      themeBtn.textContent = isDark ? '☀️ โหมดสว่าง' : '🌙 โหมดมืด';
-    });
-
-
-    /* ---------- จุดที่ 2: ปุ่มกางดูข้อมูลเพิ่มเติม ---------- */
-
-    // หยิบทั้งปุ่ม และกล่องข้อมูลที่จะกาง/หุบ
-    const moreBtn = document.getElementById('moreBtn');
-    const moreBox = document.getElementById('moreBox');
-
-    moreBtn.addEventListener('click', function () {
-      // สลับ class "open" ที่กล่อง -> CSS จะค่อย ๆ กางความสูงออก
-      const isOpen = moreBox.classList.toggle('open');
-
-      // สลับข้อความปุ่มตามว่าตอนนี้กางอยู่หรือหุบอยู่
-      moreBtn.textContent = isOpen ? 'ย่อกลับ' : 'อ่านเพิ่มเติม';
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
